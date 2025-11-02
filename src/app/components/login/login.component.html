@@ -3,6 +3,26 @@
     <h2>Sign In</h2>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
       <div class="form-group">
+        <label for="userType">User Type</label>
+        <select
+          id="userType"
+          formControlName="userType"
+          class="form-control"
+          [class.invalid]="userType?.invalid && userType?.touched"
+          [disabled]="isLoadingUserTypes"
+        >
+          <option value="">Select user type</option>
+          <option *ngFor="let type of userTypes" [value]="type.value">
+            {{ type.name }}
+          </option>
+        </select>
+        <div *ngIf="isLoadingUserTypes" class="loading-text">Loading user types...</div>
+        <div *ngIf="userType?.invalid && userType?.touched" class="error-message">
+          <span *ngIf="userType?.errors?.['required']">User type is required</span>
+        </div>
+      </div>
+
+      <div class="form-group">
         <label for="email">Email</label>
         <input
           type="email"

@@ -4,9 +4,16 @@ import { Observable, BehaviorSubject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Router } from '@angular/router';
 
+export interface UserType {
+  id: string | number;
+  name: string;
+  value: string;
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
+  userType?: string;
 }
 
 export interface SignupRequest {
@@ -49,6 +56,10 @@ export class AuthService {
 
   signup(userData: SignupRequest): Observable<AuthResponse> {
     return this.http.post<AuthResponse>(`${this.apiUrl}/signup`, userData);
+  }
+
+  getUserTypes(): Observable<UserType[]> {
+    return this.http.get<UserType[]>(`${this.apiUrl}/user-types`);
   }
 
   logout(): void {

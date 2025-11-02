@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { AuthService, LoginRequest } from '../../services/auth.service';
+import { AuthService, LoginRequest, UserType } from '../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -12,6 +12,8 @@ export class LoginComponent implements OnInit {
   loginForm!: FormGroup;
   isLoading = false;
   errorMessage = '';
+  userTypes: UserType[] = [];
+  isLoadingUserTypes = false;
 
   constructor(
     private fb: FormBuilder,
@@ -21,12 +23,29 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
     this.initForm();
+    this.loadUserTypes();
   }
 
   initForm(): void {
     this.loginForm = this.fb.group({
+      userType: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(6)]]
+    });
+  }
+
+  loadUserTypes(): void {
+    this.isLoadingUserTypes = true;
+    this.authService.getUserTypes().subscribe({
+      next: (types) => {
+        this.userTypes = types;
+        this.isLoadingUserTypes = false;
+      },
+      error: (error) => {
+        console.error('Error loading user types:', error);
+        this.errorMessage = 'Failed to load user types. Please refresh the page.';
+        this.isLoadingUserTypes = false;
+      }
     });
   }
 
@@ -36,6 +55,7 @@ export class LoginComponent implements OnInit {
       this.errorMessage = '';
 
       const loginData: LoginRequest = {
+        userType: this.loginForm.value.userType,
         email: this.loginForm.value.email,
         password: this.loginForm.value.password
       };
@@ -69,6 +89,10 @@ export class LoginComponent implements OnInit {
       const control = this.loginForm.get(key);
       control?.markAsTouched();
     });
+  }
+
+  get userType() {
+    return this.loginForm.get('userType');
   }
 
   get email() {
